@@ -108,7 +108,15 @@ YTR's main interface is pretty straight forward. Simply enter the URL of any vid
 
 ## CHANGELOG <a name="changelog"></a>
 
-### 3/25/2024
+### 4/13/2024 v1.0.5.1
+- Fixed bug where Download Audio caused YTR to crash
+- Fixed bug where Download Audio did not include Thumbnail Embedding
+- Fixed bug where List Formats failed if a thumbnail download returned a 404 error
+
+### 3/25/2024 v1.0.5.0
+- Beta Branch Updated from v1.0.4.12-alpha
+
+### 3/25/2024 v1.0.4.12
 - Fixed Bug where Visual Crop Tool could result in Incorrect Crop Calculations due to Thumbnail Dimensions
 - Fixed Bug where Quick Download could result in mismatched encoding
 - Updated yt-dlp and ffmpeg
