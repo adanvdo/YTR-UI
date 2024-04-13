@@ -23,7 +23,7 @@ namespace YTR.Utils
             byte[] dataBytes = null;
             using (var client = new WebClient())
             {
-                dataBytes = await client.DownloadDataTaskAsync(uri.AbsoluteUri);
+                dataBytes = await client.DownloadDataTaskAsync(url.Contains("ytimg.com") ? uri.GetLeftPart(UriPartial.Path) : uri.AbsoluteUri);
             }
             return new MemoryStream(dataBytes);
         }

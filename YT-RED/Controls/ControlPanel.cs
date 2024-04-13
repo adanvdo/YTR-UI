@@ -121,8 +121,10 @@ namespace YTR.Controls
             processFormatChange();
         }
 
+        bool bestAudioMode = false;
         public void SetCurrentFormats(Classes.YTDLFormatData videoFormat = null, Classes.YTDLFormatData audioFormat = null)
         {
+            bestAudioMode = audioFormat != null && audioFormat.AudioCodec == "best";
             if (currentFormatPair == null)
                 currentFormatPair = new Classes.YTDLFormatPair();
 
@@ -235,7 +237,7 @@ namespace YTR.Controls
         {
             get
             {
-                if (currentFormatPair == null || !currentFormatPair.IsValid() || currentFormatPair.Type != Classes.StreamType.Audio)
+                if (currentFormatPair == null || (!currentFormatPair.IsValid() && !bestAudioMode) || currentFormatPair.Type != Classes.StreamType.Audio)
                     return false;
 
                 if (cbAudioFormat.SelectedItem != null && cbAudioFormat.SelectedItem.ToString().ToLower() != "opus")
@@ -250,7 +252,7 @@ namespace YTR.Controls
 
         private void formatChanged()
         {
-            if (currentFormatPair != null && currentFormatPair.IsValid())
+            if (currentFormatPair != null && currentFormatPair.IsValid() && !bestAudioMode)
             {
                 if (currentFormatPair.VideoFormat == null || currentFormatPair.VideoCodec == "none")
                 {
@@ -295,7 +297,8 @@ namespace YTR.Controls
                 ConvertAudioFormat = AppSettings.Default.Advanced.PreferredAudioFormat;
                 cbVideoFormat.Enabled = toggleConvert.IsOn;
                 cbAudioFormat.Enabled = toggleConvert.IsOn;
-                checkRedundancy();
+                if (!bestAudioMode)
+                    checkRedundancy();
             }
             cbAudioFormat.Enabled = toggleConvert.IsOn && !AppSettings.Default.Advanced.AlwaysConvertToPreferredFormat;
             cbVideoFormat.Enabled = toggleConvert.IsOn && !AppSettings.Default.Advanced.AlwaysConvertToPreferredFormat;

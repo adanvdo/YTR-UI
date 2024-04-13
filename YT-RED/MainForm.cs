@@ -1,8 +1,10 @@
-﻿using DevExpress.Utils;
+﻿using DevExpress.Office;
+using DevExpress.Utils;
 using DevExpress.Utils.Drawing;
 using DevExpress.Utils.Svg;
 using DevExpress.XtraGrid.Views.Grid;
 using DevExpress.XtraGrid.Views.Grid.ViewInfo;
+using Microsoft.VisualBasic;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -1219,6 +1221,7 @@ namespace YTR
                     {
                         string destination = conversion.OutputFilePath;
                         conversion.OnProgress += Conversion_OnProgress;
+                       
                         try
                         {
                             VideoUtil.CancellationTokenSource = new System.Threading.CancellationTokenSource();
@@ -1252,8 +1255,17 @@ namespace YTR
                         try
                         {
                             VideoUtil.CancellationTokenSource = new System.Threading.CancellationTokenSource();
+                            cpMainControlPanel.ShowProgress();
                             await conversion.Start(VideoUtil.CancellationTokenSource.Token);
+                            if (cpMainControlPanel.EmbedThumbnail)
+                            {
+                                if (cpMainControlPanel.ConversionEnabled && AppSettings.Default.Advanced.AlwaysConvertToPreferredFormat)
+                                    audioFormat = AppSettings.Default.Advanced.PreferredAudioFormat;
+
+                                await handleThumbnailEmbed((AudioFormat)audioFormat, destination);
+                            }
                             result = new RunResult<string>(true, new string[] { }, destination);
+                            cpMainControlPanel.HideProgress();
                         }
                         catch (Exception ex)
                         {
@@ -1484,7 +1496,7 @@ namespace YTR
                 {
                     string destination = conversion.OutputFilePath;
                     conversion.OnProgress += Conversion_OnProgress;
-                    cpMainControlPanel.ShowProgress();
+                    cpMainControlPanel.ShowProgress();                    
 
                     try
                     {
@@ -1496,19 +1508,7 @@ namespace YTR
                             if (cpMainControlPanel.ConversionEnabled && AppSettings.Default.Advanced.AlwaysConvertToPreferredFormat)
                                 audioFormat = AppSettings.Default.Advanced.PreferredAudioFormat;
 
-                            var data = await VideoUtil.GetVideoData(VideoUtil.ConvertToYouTubeLink(ipMainInput.URL).Url);
-                            if (data != null)
-                            {
-                                var thumb = data.Thumbnails.Where(t => !t.Url.EndsWith("webp")).OrderByDescending(t => t.Height).ToArray()[0];
-                                if (audioFormat == AudioFormat.MP3)
-                                {
-                                    await TagUtil.AddMp3Tags(destination, thumb.Url, data.Title, "", -1, data.UploadDate != null ? ((DateTime)data.UploadDate).Year : -1);
-                                }
-                                else
-                                {
-                                    await TagUtil.AddAlbumCover(destination, thumb.Url);
-                                }
-                            }
+                            await handleThumbnailEmbed((AudioFormat)audioFormat, destination);
                         }
 
                         result = new RunResult<string>(true, new string[] { }, destination);
@@ -1589,7 +1589,24 @@ namespace YTR
             this.UseWaitCursor = false;
             this.currentDownload = DownloadType.Unknown;
             (this.tcMainTabControl.SelectedPage as CustomTabFormPage).IsLocked = false;
-        }        
+        }
+
+        private async Task handleThumbnailEmbed(AudioFormat audioFormat, string destination)
+        {
+            var data = await VideoUtil.GetVideoData(VideoUtil.ConvertToYouTubeLink(ipMainInput.URL).Url);
+            if (data != null)
+            {
+                var thumb = data.Thumbnails.Where(t => !t.Url.EndsWith("webp")).OrderByDescending(t => t.Height).ToArray()[0];
+                if (audioFormat == AudioFormat.MP3)
+                {
+                    await TagUtil.AddMp3Tags(destination, thumb.Url, data.Title, "", -1, data.UploadDate != null ? ((DateTime)data.UploadDate).Year : -1);
+                }
+                else
+                {
+                    await TagUtil.AddAlbumCover(destination, thumb.Url);
+                }
+            }            
+        }
 
         private void gvFormats_CustomColumnDisplayText(object sender, DevExpress.XtraGrid.Views.Base.CustomColumnDisplayTextEventArgs e)
         {

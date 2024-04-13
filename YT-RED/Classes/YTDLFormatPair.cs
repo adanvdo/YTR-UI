@@ -178,7 +178,7 @@ namespace YTR.Classes
 
         public bool IsValid()
         {
-            return this.videoFormat != null || this.audioFormat != null;
+            return this.videoFormat != null || (this.audioFormat != null && !string.IsNullOrEmpty(audioFormat.Extension));
         }
 
         public YTDLFormatPair()

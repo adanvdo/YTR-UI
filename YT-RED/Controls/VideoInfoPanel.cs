@@ -4,6 +4,7 @@ using System.Data;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using YoutubeDLSharp.Metadata;
@@ -81,15 +82,37 @@ namespace YTR.Controls
 
                 if(videoData.Thumbnails != null && videoData.Thumbnails.Length > 0)
                 {
-                    var supportedImage = videoData.Thumbnails.OrderByDescending(tn => tn.Preference).FirstOrDefault(tn => !tn.Url.ToLower().EndsWith(".webp"));
-                    if (supportedImage != null)
+                    var supportedImages = videoData.Thumbnails.OrderByDescending(tn => tn.Preference).Where(tn => !tn.Url.ToLower().EndsWith(".webp")).ToList();
+                    var supportedImage = supportedImages.FirstOrDefault();
+                    for (int i = supportedImages.Count; i > 0; i--)
                     {
-                        Stream thumbnailStream = await Utils.WebUtil.GetStreamFromUrl(supportedImage.Url);
-                        currentImage = Image.FromStream(thumbnailStream, false, true);
-                        useMediaSize = currentImage.Size;
-                        peThumbnail.Image = currentImage;
+                        try
+                        {
+                            await loadThumbnail(supportedImage);
+                            break;
+                        }
+                        catch (WebException ex)
+                        {
+                            var response = (HttpWebResponse)ex.Response;
+                            if (response.StatusCode == HttpStatusCode.NotFound || response.StatusCode == HttpStatusCode.Unauthorized)
+                            {
+                                supportedImages.RemoveAt(0);
+                                supportedImage = supportedImages.FirstOrDefault();
+                            }
+                        }
                     }
                 }
+            }
+        }
+
+        private async Task loadThumbnail(ThumbnailData thumbData)
+        {            
+            if (thumbData != null)
+            {
+                Stream thumbnailStream = await Utils.WebUtil.GetStreamFromUrl(thumbData.Url);
+                currentImage = Image.FromStream(thumbnailStream, false, true);
+                useMediaSize = currentImage.Size;
+                peThumbnail.Image = currentImage;
             }
         }
 
