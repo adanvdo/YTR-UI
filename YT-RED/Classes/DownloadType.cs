@@ -16,6 +16,7 @@ namespace YTR.Classes
         Twitch = 5,
         Playlist = 6,
         Unknown = 7,
-        Empty = 8
+        Empty = 8,
+        TikTok = 9
     }
 }

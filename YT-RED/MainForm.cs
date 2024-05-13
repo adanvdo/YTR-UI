@@ -209,7 +209,7 @@ namespace YTR
                 }
                 catch (Exception ex)
                 {
-                    if (ex.Message.ToLower() != "a task was canceled")
+                    if (ex.Message.ToLower() != "a task was canceled" && !ex.Message.ToLower().Contains("the operation was canceled"))
                         ExceptionHandler.LogException(ex);
                 }
             }
@@ -546,7 +546,7 @@ namespace YTR
             }
             catch (Exception ex)
             {
-                if (ex.Message.ToLower() != "a task was canceled")
+                if (ex.Message.ToLower() != "a task was canceled" && !ex.Message.ToLower().Contains("the operation was canceled"))
                     ExceptionHandler.LogException(ex);
             }
         }
@@ -889,7 +889,7 @@ namespace YTR
             }
             catch (Exception ex)
             {
-                if (ex.Message.ToLower() != "a task was canceled")
+                if (ex.Message.ToLower() != "a task was canceled" && !ex.Message.ToLower().Contains("the operation was canceled"))
                     ExceptionHandler.LogException(ex);
             }
 
@@ -919,7 +919,7 @@ namespace YTR
                 (this.tcMainTabControl.SelectedPage as CustomTabFormPage).IsLocked = true;
                 ipMainInput.marqeeMain.Text = "Fetching Available Formats";
                 ipMainInput.marqeeMain.Show();
-                var data = await VideoUtil.GetVideoData(url, AppSettings.Default.Advanced.GetMissingMetadata);
+                var data = await VideoUtil.GetVideoData(url, this.currentDownload == DownloadType.TikTok ? false : AppSettings.Default.Advanced.GetMissingMetadata);
                 List<YoutubeDLSharp.Metadata.FormatData> formatList = new List<YoutubeDLSharp.Metadata.FormatData>();
                 List<YTDLFormatData> converted = new List<YTDLFormatData>();                
                 if(data.Formats != null)
@@ -969,7 +969,7 @@ namespace YTR
             }
             catch (Exception ex)
             {
-                if (ex.Message.ToLower() != "a task was canceled")
+                if (ex.Message.ToLower() != "a task was canceled" && !ex.Message.ToLower().Contains("the operation was canceled"))
                     ExceptionHandler.LogException(ex);
             }
             this.ipMainInput.btnListFormats.Text = "List Available Formats";
@@ -1232,7 +1232,7 @@ namespace YTR
                         }
                         catch (Exception ex)
                         {
-                            if (ex.Message.ToLower() != "a task was canceled")
+                            if (ex.Message.ToLower() != "a task was canceled" && !ex.Message.ToLower().Contains("the operation was canceled"))
                                 ExceptionHandler.LogFFmpegException(ex, true, url);
                             result = new RunResult<string>(false, new string[] { ex.Message }, null);
                         }
@@ -1269,7 +1269,7 @@ namespace YTR
                         }
                         catch (Exception ex)
                         {
-                            if (ex.Message.ToLower() != "a task was canceled")
+                            if (ex.Message.ToLower() != "a task was canceled" && !ex.Message.ToLower().Contains("the operation was canceled"))
                                 ExceptionHandler.LogFFmpegException(ex, true, url);
                             result = new RunResult<string>(false, new string[] { ex.Message }, null);
                         }
@@ -1516,7 +1516,7 @@ namespace YTR
                     catch (Exception ex)
                     {
                         result = new RunResult<string>(false, new string[] { ex.Message }, null);
-                        if (ex.Message.ToLower() != "a task was canceled")
+                        if (ex.Message.ToLower() != "a task was canceled" && !ex.Message.ToLower().Contains("the operation was canceled"))
                             ExceptionHandler.LogFFmpegException(ex, true, VideoUtil.ConvertToYouTubeLink(ipMainInput.URL).Url);
                     }
                 }
@@ -1660,7 +1660,7 @@ namespace YTR
             }
             catch(Exception ex)
             {
-                if (ex.Message.ToLower() != "a task was canceled")
+                if (ex.Message.ToLower() != "a task was canceled" && !ex.Message.ToLower().Contains("the operation was canceled"))
                     ExceptionHandler.LogException(ex);
             }
         }

@@ -186,6 +186,9 @@
     </Reference>
     <Reference Include="UIAutomationClient" />
     <Reference Include="WindowsBase" />
+    <Reference Include="Winista.MimeDetect, Version=1.1.0.0, Culture=neutral, PublicKeyToken=76f4f8fa5fedae7a, processorArchitecture=MSIL">
+      <HintPath>..\packages\Winista.MimeDetect.1.1.0\lib\net45\Winista.MimeDetect.dll</HintPath>
+    </Reference>
     <Reference Include="Xabe.FFmpeg, Version=5.2.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\local-packages\Xabe.FFMpeg\Xabe.FFmpeg.dll</HintPath>
@@ -225,6 +228,7 @@
     <Compile Include="Classes\YTDLFormatPair.cs" />
     <Compile Include="Classes\YTDLPlaylistData.cs" />
     <Compile Include="Classes\YTFormatData.cs" />
+    <Compile Include="Classes\YTRThumbnailData.cs" />
     <Compile Include="Controls\ControlPanel.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -295,6 +299,7 @@
       <DependentUpon>TrayForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Extensions\EnumExtension.cs" />
+    <Compile Include="Extensions\ThumbnailDataExtensions.cs" />
     <Compile Include="Logging\DownloadLog.cs" />
     <Compile Include="Logging\ExceptionHandler.cs" />
     <Compile Include="Logging\Historian.cs" />
@@ -316,6 +321,7 @@
     <Compile Include="Utils\HtmlUtil.cs" />
     <Compile Include="Utils\HttpUtil.cs" />
     <Compile Include="Utils\MathUtil.cs" />
+    <Compile Include="Utils\MimeUtil.cs" />
     <Compile Include="Utils\ReportingUtil.cs" />
     <Compile Include="Utils\StringUtil.cs" />
     <Compile Include="Utils\TagUtil.cs" />

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Collections.Generic;
 using System.Data;
 using System.Drawing;
 using System.IO;
@@ -9,6 +10,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using YoutubeDLSharp.Metadata;
 using YTR.Classes;
+using YTR.Utils;
 
 namespace YTR.Controls
 {
@@ -82,22 +84,49 @@ namespace YTR.Controls
 
                 if(videoData.Thumbnails != null && videoData.Thumbnails.Length > 0)
                 {
-                    var supportedImages = videoData.Thumbnails.OrderByDescending(tn => tn.Preference).Where(tn => !tn.Url.ToLower().EndsWith(".webp")).ToList();
-                    var supportedImage = supportedImages.FirstOrDefault();
-                    for (int i = supportedImages.Count; i > 0; i--)
+                    List<YTRThumbnailData> ytrThumbnails = new List<YTRThumbnailData>();
+                    if (!videoData.Thumbnails.Any(t => t.Preference != null))
                     {
-                        try
+                        ytrThumbnails = await MimeUtil.GetYTRThumbnailDataFromByteArrayAsync(videoData.Thumbnails.ToList());
+                        var supportedYTRImages = ytrThumbnails.OrderByDescending(t => t.Resolution).Where(t => MimeUtil.ImageExtensions.Any(e => t.MimeType.Extensions.Any(me => me.ToLower() == e.ToLower()))).ToList();
+                        var supportedYTRImage = supportedYTRImages.FirstOrDefault();
+                        for (int i = supportedYTRImages.Count; i > 0; i--)
                         {
-                            await loadThumbnail(supportedImage);
-                            break;
-                        }
-                        catch (WebException ex)
-                        {
-                            var response = (HttpWebResponse)ex.Response;
-                            if (response.StatusCode == HttpStatusCode.NotFound || response.StatusCode == HttpStatusCode.Unauthorized)
+                            try
                             {
-                                supportedImages.RemoveAt(0);
-                                supportedImage = supportedImages.FirstOrDefault();
+                                await loadThumbnail(supportedYTRImage);
+                                break;
+                            }
+                            catch (WebException ex)
+                            {
+                                var response = (HttpWebResponse)ex.Response;
+                                if (response.StatusCode == HttpStatusCode.NotFound || response.StatusCode == HttpStatusCode.Unauthorized)
+                                {
+                                    supportedYTRImages.RemoveAt(0);
+                                    supportedYTRImage = supportedYTRImages.FirstOrDefault();
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        var supportedImages = videoData.Thumbnails.OrderByDescending(tn => tn.Preference).Where(tn => !tn.Url.ToLower().EndsWith(".webp")).ToList();
+                        var supportedImage = supportedImages.FirstOrDefault();
+                        for (int i = supportedImages.Count; i > 0; i--)
+                        {
+                            try
+                            {
+                                await loadThumbnail(supportedImage);
+                                break;
+                            }
+                            catch (WebException ex)
+                            {
+                                var response = (HttpWebResponse)ex.Response;
+                                if (response.StatusCode == HttpStatusCode.NotFound || response.StatusCode == HttpStatusCode.Unauthorized)
+                                {
+                                    supportedImages.RemoveAt(0);
+                                    supportedImage = supportedImages.FirstOrDefault();
+                                }
                             }
                         }
                     }

@@ -204,6 +204,7 @@ namespace YTR.Utils
                 string useUrl = useAbsoluteUri ? $"https://{uri.Host}{uri.AbsolutePath}" : uri.ToString();
                 using(HttpClient client = new HttpClient())
                 {
+                    client.DefaultRequestHeaders.Add("User-Agent", "Other");
                     var response = await client.GetAsync(useUrl);
                     if (response.IsSuccessStatusCode)
                     {
