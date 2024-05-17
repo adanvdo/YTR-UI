@@ -108,6 +108,10 @@ YTR's main interface is pretty straight forward. Simply enter the URL of any vid
 
 ## CHANGELOG <a name="changelog"></a>
 
+### 5/17/2024 v1.0.5.2
+- Fixed error listing TikTok formats
+- Added basic TikTok download support
+
 ### 4/13/2024 v1.0.5.1
 - Fixed bug where Download Audio caused YTR to crash
 - Fixed bug where Download Audio did not include Thumbnail Embedding
