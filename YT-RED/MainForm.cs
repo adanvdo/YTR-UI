@@ -1695,9 +1695,13 @@ namespace YTR
                     videoInfoPanel.UseMediaSize = new Size(0, 0);
                     videoInfoPanel.QualifyCropButton(false);
                 }
+                videoInfoPanel.EnableCropButton = true;
             }
             else if (fd.Type == Classes.StreamType.Audio)
+            {
                 cpMainControlPanel.SetCurrentFormats(null, fd);
+                videoInfoPanel.EnableCropButton = false;
+            }
             if(fd.VideoCodec == "none")
             {
                 cpMainControlPanel.DisableToggle(false, true, false);
@@ -1848,6 +1852,7 @@ namespace YTR
                             cpMainControlPanel.RemoveCurrentFormat(Classes.StreamType.Audio);
                             selectedAudioIndex = -1;
                         }
+                        videoInfoPanel.EnableCropButton = true;
                         selectedVideoIndex = handle;
                     }
                     deselecting = false;
@@ -1858,7 +1863,10 @@ namespace YTR
                     if (selection.Type == Classes.StreamType.Audio)
                         selectedAudioIndex = -1;
                     else
+                    {
+                        videoInfoPanel.EnableCropButton = false;
                         selectedVideoIndex = -1;
+                    }
                     cpMainControlPanel.RemoveCurrentFormat(selection.Type);
                 }
 

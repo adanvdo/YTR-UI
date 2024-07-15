@@ -16,16 +16,17 @@ namespace YTR.Utils
 {
     public static class MimeUtil
     {
-        public static async Task<List<YTRThumbnailData>> GetYTRThumbnailDataFromByteArrayAsync(List<ThumbnailData> thumbnailData)
+        public static async Task<List<YTRThumbnailData>> GetSupportedYTRThumbnailDataFromByteArrayAsync(ThumbnailData[] thumbnailData)
         {
-            var ytrThumbData = new List<YTRThumbnailData>();
-            foreach (ThumbnailData td in thumbnailData)
+            var ytrThumbData = YTRThumbnailData.ConvertFromThumbnailDataArray(thumbnailData, SortPriority.Resolution);
+            foreach (YTRThumbnailData td in ytrThumbData)
             {
                 var byteArray = await WebUtil.DownloadByteArrayAsync(td.Url);
                 var mimeInfo = await GetMimeTypeAsync(byteArray);
-                ytrThumbData.Add(td.ToYTRThumbnailData(mimeInfo));
+                td.MimeType = mimeInfo;
             }
-            return ytrThumbData;
+
+            return YTRThumbnailData.UpdateThumbnailOrder(ytrThumbData.Where(t => MimeUtil.ImageExtensions.Any(e => t.MimeType.Extensions.Any(me => me.ToLower() == e.ToLower())))).ToList();
         }
 
         public static async Task<MimeType> GetMimeTypeAsync(byte[] imageBytes)

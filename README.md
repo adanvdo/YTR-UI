@@ -108,6 +108,10 @@ YTR's main interface is pretty straight forward. Simply enter the URL of any vid
 
 ## CHANGELOG <a name="changelog"></a>
 
+### 7/15/2024 v1.0.5.3
+- Really fixed bug where List Formats failed if a thumbnail download returned a 404 error
+- Fixed bug where crop button was displayed when no video format was selected
+
 ### 5/17/2024 v1.0.5.2
 - Fixed error listing TikTok formats
 - Added basic TikTok download support

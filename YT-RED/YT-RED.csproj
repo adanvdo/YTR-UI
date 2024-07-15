@@ -391,6 +391,7 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
+    <None Include="Resources\Media\nothumb.png" />
     <None Include="Resources\App\update_log.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

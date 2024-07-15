@@ -37,6 +37,12 @@ namespace YTR.Controls
             set { useMediaSize = value; }
         }
 
+        public bool EnableCropButton
+        {
+            get { return btnCropMedia.Enabled; }
+            set { btnCropMedia.Enabled = value;}
+        }
+
         public VideoInfoPanel()
         {
             InitializeComponent();
@@ -44,7 +50,11 @@ namespace YTR.Controls
 
         public void QualifyCropButton(bool show)
         {
-            if (currentImage != null && useMediaSize.Width > 0 && useMediaSize.Height > 0 && show)
+            if (!show)
+            {
+                btnCropMedia.Visible = false;
+            }
+            else if (currentImage != null && useMediaSize.Width > 0 && useMediaSize.Height > 0)
             {
                 AspectRatio videoAR = AspectRatio.FromDimensions(useMediaSize);
                 AspectRatio thumbAR = AspectRatio.FromDimensions(currentImage.Width, currentImage.Height);
@@ -67,6 +77,7 @@ namespace YTR.Controls
         public async Task Populate(VideoData videoData)
         {
             Clear();
+            bool handled = false;
 
             if (videoData != null) 
             {
@@ -87,50 +98,35 @@ namespace YTR.Controls
                     List<YTRThumbnailData> ytrThumbnails = new List<YTRThumbnailData>();
                     if (!videoData.Thumbnails.Any(t => t.Preference != null))
                     {
-                        ytrThumbnails = await MimeUtil.GetYTRThumbnailDataFromByteArrayAsync(videoData.Thumbnails.ToList());
-                        var supportedYTRImages = ytrThumbnails.OrderByDescending(t => t.Resolution).Where(t => MimeUtil.ImageExtensions.Any(e => t.MimeType.Extensions.Any(me => me.ToLower() == e.ToLower()))).ToList();
-                        var supportedYTRImage = supportedYTRImages.FirstOrDefault();
-                        for (int i = supportedYTRImages.Count; i > 0; i--)
-                        {
-                            try
-                            {
-                                await loadThumbnail(supportedYTRImage);
-                                break;
-                            }
-                            catch (WebException ex)
-                            {
-                                var response = (HttpWebResponse)ex.Response;
-                                if (response.StatusCode == HttpStatusCode.NotFound || response.StatusCode == HttpStatusCode.Unauthorized)
-                                {
-                                    supportedYTRImages.RemoveAt(0);
-                                    supportedYTRImage = supportedYTRImages.FirstOrDefault();
-                                }
-                            }
-                        }
+                        ytrThumbnails = await MimeUtil.GetSupportedYTRThumbnailDataFromByteArrayAsync(videoData.Thumbnails);
                     }
                     else
                     {
-                        var supportedImages = videoData.Thumbnails.OrderByDescending(tn => tn.Preference).Where(tn => !tn.Url.ToLower().EndsWith(".webp")).ToList();
-                        var supportedImage = supportedImages.FirstOrDefault();
-                        for (int i = supportedImages.Count; i > 0; i--)
+                        ytrThumbnails = YTRThumbnailData.ConvertFromThumbnailDataArray(videoData.Thumbnails, SortPriority.Resolution, tn => !tn.Url.ToLower().EndsWith(".webp")).ToList();
+                    }
+                    
+                    YTRThumbnailData supportedYTRImage = null;
+                    for (int i = 0; i < ytrThumbnails.Count; i++)
+                    {
+                        supportedYTRImage = ytrThumbnails[i];
+                        try
                         {
-                            try
-                            {
-                                await loadThumbnail(supportedImage);
-                                break;
-                            }
-                            catch (WebException ex)
-                            {
-                                var response = (HttpWebResponse)ex.Response;
-                                if (response.StatusCode == HttpStatusCode.NotFound || response.StatusCode == HttpStatusCode.Unauthorized)
-                                {
-                                    supportedImages.RemoveAt(0);
-                                    supportedImage = supportedImages.FirstOrDefault();
-                                }
-                            }
+                            await loadThumbnail(supportedYTRImage);
+                            handled = true;
+                            break;
+                        }
+                        catch (WebException ex)
+                        {
                         }
                     }
                 }
+            }
+
+            if (!handled)
+            {
+                currentImage = Properties.Resources.nothumb;
+                useMediaSize = currentImage.Size;
+                peThumbnail.Image = currentImage;
             }
         }
 

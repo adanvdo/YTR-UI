@@ -78,6 +78,7 @@
             // btnCropMedia
             // 
             this.btnCropMedia.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnCropMedia.Enabled = false;
             this.btnCropMedia.ImageOptions.AllowGlyphSkinning = DevExpress.Utils.DefaultBoolean.True;
             this.btnCropMedia.ImageOptions.Location = DevExpress.XtraEditors.ImageLocation.MiddleCenter;
             this.btnCropMedia.ImageOptions.SvgImage = global::YTR.Properties.Resources.crop;
